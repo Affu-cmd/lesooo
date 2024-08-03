@@ -3,6 +3,7 @@ from discord.ext import commands
 import yt_dlp
 import asyncio
 import webserver
+import os
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -64,10 +65,17 @@ class MusicBot(commands.Cog):
 
 client = commands.Bot(command_prefix="!", intents=intents)
 
+@client.event
+async def on_ready():
+    print(f'Logged in as {client.user}')
+
 async def main():
     async with client:
         await client.add_cog(MusicBot(client))
-        await client.start('BOT_TOKEN')
+        bot_token = os.getenv('DISCORD_TOKEN')
+        if not bot_token:
+            raise ValueError("No bot token found in environment variables.")
+        await client.start(bot_token)
 
 webserver.keep_alive()
 asyncio.run(main())
